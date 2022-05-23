@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const {
+	rm,
 	mkdir,
 	readdir,
 	readFile,
@@ -10,7 +11,6 @@ const {
 
 const srcDir = path.join(__dirname);
 const destDir = path.join(__dirname, 'project-dist');
-const regexp = /[.css]/gm;
 
 async function mergeStyles(src, dest) {
 	try {
@@ -18,14 +18,15 @@ async function mergeStyles(src, dest) {
 		const writebleStream = fs.createWriteStream(dest);
 
 		for (const file of files) {
-			if (regexp.test(file.name) && file.isFile()) {
+			const extention = file.name.split('.')[1];
+			if (extention === 'css' && file.isFile()) {
 				const readableStream = fs.createReadStream(
 					path.join(src, file.name),
 					'utf-8'
 				);
 
 				readableStream.on('data', (chunk) => {
-					writebleStream.write(chunk, (err) => {
+					writebleStream.write(`\n${chunk}`, (err) => {
 						if (err) throw err;
 					});
 				});
@@ -56,6 +57,7 @@ async function copyDirectory(src, dest) {
 
 async function buildPage(src, dest) {
 	try {
+		await rm(dest, { force: true, recursive: true });
 		await mkdir(dest, { recursive: true });
 
 		let template = await readFile(
