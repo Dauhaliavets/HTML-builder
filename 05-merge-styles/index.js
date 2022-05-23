@@ -5,7 +5,7 @@ const { readdir } = require('fs/promises');
 const srcDir = path.join(__dirname, 'styles');
 const destDir = path.join(__dirname, 'project-dist');
 
-const regexp = /[.css]/gm;
+const regexp = /(\.css)$/gm;
 
 async function mergeStyles(src, dest) {
 	try {
@@ -17,7 +17,7 @@ async function mergeStyles(src, dest) {
 				const readableStream = fs.createReadStream(path.join(src, file.name), 'utf-8');
 
 				readableStream.on('data', (chunk) => {
-					writebleStream.write(chunk, (err) => {
+					writebleStream.write(`\n${chunk}`, (err) => {
 						if (err) throw err;
 					});
 				});
